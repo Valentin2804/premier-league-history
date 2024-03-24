@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premier League Analyzer</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <style>
+
+    body {
+      margin: 0;
+      padding: 0;
+      width: 95vw;
+      height: 200vh;
+      background: linear-gradient(to bottom right, rgb(61, 25, 91), white);
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #logo {
+      width: 250px;
+      height: 100px;
+      background: url("https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Premier_League_Logo.svg/1200px-Premier_League_Logo.svg.png") no-repeat center center;
+      background-size: cover;
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      filter: brightness(0) invert(1);
+    }
+
+    #header {
+      font-size: 48px;
+      font-weight: bolder;
+      color: white;
+      text-shadow: 5px 5px 0 rgb(61, 25, 91);
+      text-align: center;
+      top: 0;
+      padding: 40px;
+      position: absolute;
+    }
+
+    #outer-text {
+      font-size: 32px;
+      font-weight: bolder;
+      color: white;
+      text-shadow: 2px 2px 0 rgb(61, 25, 91);
+      text-align: center;
+      padding: 20px;
+      position: absolute;
+      width: 100%;
+      top: 182px; /* Adjusted position */
+    }
+
+    #center-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 80%;
+      max-width: 600px;
+      height: 300px;
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 10px;
+      margin-top: -500px;
+      backdrop-filter: blur(10px);
+    }
+
+    #search-container {
+      display: flex;
+      align-items: flex-start; /* Align items to the top */
+      justify-content: center;
+      flex-direction: row;
+      margin-bottom: 20px;
+    }
+
+    .input-container {
+      display: flex;
+      flex-direction: column;
+      margin-right: 10px;
+      margin-top: -101px; /* Adjusted margin for spacing from the top */
+      position: relative;
+    }
+
+    #label-home,
+    #label-away {
+      color: rgb(61, 25, 91);
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      text-align: center;
+      width: 220px;
+    }
+
+    .vs-text {
+      color: rgb(61, 25, 91);
+      font-size: 18px;
+      margin: -61px 10px 0 -3px; /* Adjusted margin for spacing from the top */
+    }
+
+    #search-bar-home,
+    #search-bar-away {
+      height: 27px;
+      width: 90%;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      font-size: 18px;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: rgba(255, 255, 255, 0.3);
+      min-width: 160px;
+      box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+      z-index: 1;
+      list-style-type: none;
+      padding: 0;
+      margin: 74px 0 0 0; /* Adjusted margin */
+      width: calc(100% - 4px);
+      backdrop-filter: blur(10px);
+    }
+
+    .dropdown-content li {
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      color: black;
+      cursor: pointer;
+    }
+
+    .dropdown-content li:hover {
+      background-color: #f1f1f1;
+    }
+
+    .show {
+      display: block;
+    }
+
+    .search-button {
+      padding: 10px;
+      background-color: rgb(61, 25, 91);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      margin-top: -75px; /* Adjusted margin for spacing from the top */
+    }
+
+    .search-icon {
+      width: 24px; /* Adjust icon size as needed */
+      height: 24px;
+      filter: invert(100%); /* Apply inversion to make the icon white */
+    }
+
+  </style>
+</head>
+
+<body>
+<div id="logo"></div>
+<div id="header">Premier league analyzer</div>
+<div id="outer-text">What are we going to watch?</div>
+<div id="center-container">
+  <form id="search-container" th:action="@{/home}" th:object="${search}" method = "post">
+    <div class="input-container">
+      <label for="search-bar-home" id="label-home">Home team:</label>
+      <input type="text" id="search-bar-home" name="homeTeam" placeholder="Enter home team" th:field="*{homeTeam}" required>
+      <ul id="home-team-dropdown" class="dropdown-content"></ul>
+    </div>
+    <span class="vs-text">vs</span>
+    <div class="input-container">
+      <label for="search-bar-away" id="label-away">Away team:</label>
+      <input type="text" id="search-bar-away" name="awayTeam" placeholder="Enter away team" th:field="*{awayTeam}" required>
+      <ul id="away-team-dropdown" class="dropdown-content"></ul>
+    </div>
+    <button class="search-button" type="submit">
+      <img class="search-icon"  th:src="@{magnifying-glass.svg}" alt="Search Icon">
+    </button>
+  </form>
+</div>
+
+<script th:inline="javascript">
+  document.addEventListener("DOMContentLoaded", function () {
+    const TeamValues = [
+      "Arsenal",
+      "Aston Villa",
+      "AFC Bournemouth",
+      "Brentford",
+      "Brighton and Hove Albion",
+      "Burnley",
+      "Chelsea",
+      "Crystal Palace",
+      "Everton",
+      "Fulham",
+      "Liverpool",
+      "Luton Town",
+      "Manchester City",
+      "Manchester United",
+      "Newcastle United",
+      "Nottingham Forest",
+      "Sheffield United",
+      "Tottenham Hotspur",
+      "West Ham United",
+      "Wolverhampton Wanderers"
+    ];
+
+    function findSimilarValue(input, values) {
+      const inputValue = input.toLowerCase().trim();
+      let maxSimilarity = -1;
+      let mostSimilarValue = "";
+
+      if (inputValue === "man united") {
+        return "Manchester United";
+      }
+
+      for (const value of values) {
+        const similarity = similarityScore(inputValue, value.toLowerCase());
+        if (similarity > maxSimilarity) {
+          maxSimilarity = similarity;
+          mostSimilarValue = value;
+        }
+      }
+
+      return mostSimilarValue;
+    }
+
+    function similarityScore(input, value) {
+      const inputSet = new Set(input);
+      const valueSet = new Set(value);
+      const intersection = new Set([...inputSet].filter(x => valueSet.has(x)));
+      const union = new Set([...inputSet, ...valueSet]);
+      return intersection.size / union.size;
+    }
+
+    function autocomplete(input, values) {
+      const dropdown = input.nextElementSibling;
+      input.addEventListener("input", function () {
+        const inputValue = this.value.trim();
+        const matches = values.filter((value) =>
+                value.toLowerCase().startsWith(inputValue.toLowerCase())
+        );
+        dropdown.innerHTML = "";
+        matches.forEach(match => {
+          const listItem = document.createElement("li");
+          listItem.textContent = match;
+          dropdown.appendChild(listItem);
+        });
+        if (matches.length > 0) {
+          dropdown.classList.add("show");
+        } else {
+          dropdown.classList.remove("show");
+        }
+      });
+
+      dropdown.addEventListener("click", function (e) {
+        if (e.target.tagName === "LI") {
+          input.value = e.target.textContent;
+          dropdown.classList.remove("show");
+        }
+      });
+
+      dropdown.addEventListener("mouseover", function (e) {
+        if (e.target.tagName === "LI") {
+          input.value = e.target.textContent;
+        }
+      });
+
+      input.addEventListener("focus", function () {
+        dropdown.classList.add("show");
+      });
+
+      input.addEventListener("blur", function () {
+        setTimeout(() => dropdown.classList.remove("show"), 200);
+      });
+
+      input.addEventListener("change", function () {
+        const inputValue = input.value.trim();
+        if (!values.includes(inputValue)) {
+          const similarValue = findSimilarValue(inputValue, values);
+          if (similarValue) {
+            input.value = similarValue;
+          } else {
+            input.value = "";
+          }
+        }
+      });
+    }
+
+    autocomplete(document.getElementById("search-bar-home"), TeamValues);
+    autocomplete(document.getElementById("search-bar-away"), TeamValues);
+  });
+
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:src="http://www.w3.org/1999/xhtml" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premier League Analyzer</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 95vw;
+            height: 500vh;
+            background: linear-gradient(to bottom right, rgb(61, 25, 91), white);
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative; /* Add position relative for absolute positioning */
+        }
+
+        #logo {
+            width: 110px; /* Adjusted size */
+            height: 44px; /* Adjusted size */
+            background: url("https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Premier_League_Logo.svg/1200px-Premier_League_Logo.svg.png") no-repeat center center;
+            background-size: cover;
+            position: absolute;
+            top: 10px;
+            left: 585px;
+            filter: brightness(0) invert(1);
+        }
+
+        #header {
+            font-size: 24px;
+            font-weight: bolder;
+            color: white;
+            text-shadow: 2px 2px 0 rgb(61, 25, 91);
+            text-align: center;
+            top: 0;
+            padding: 60px;
+            position: absolute;
+        }
+
+        #vs {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 0 rgb(61, 25, 91);
+            text-align: center;
+            position: absolute;
+            top: 110px; /* Adjust as needed */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Center horizontally */
+        }
+
+        #venue { /* Added style for the venue text */
+            font-size: 18px;
+            color: white;
+            position: absolute;
+            top: 155px; /* Adjust the top position accordingly */
+            text-align: center;
+        }
+
+        .homeTeam {
+            font-size: 32px;
+            position: absolute;
+            font-weight: bolder;
+            top: 100px; /* Move down */
+            left: 100px; /* Adjusted position for the home team */
+            color: white;
+            text-shadow: 4px 4px 4px rgba(0, 0, 0, 0.5); /* Text shadow effect */
+        }
+
+        .awayTeam {
+            font-size: 32px;
+            position: absolute;
+            font-weight: bolder;
+            top: 100px; /* Move down */
+            right: 100px; /* Adjusted position for the away team */
+            color: white;
+            text-shadow: 4px 4px 4px rgba(0, 0, 0, 0.5); /* Text shadow effect */
+        }
+
+        .homeTeamLogo {
+            position: absolute;
+            width: 50px; /* Adjust image width */
+            height: 50px; /* Adjust image height */
+            top: 0;
+            left: calc(100% + 10px); /* Position it just to the right of the home team name */
+        }
+
+        .awayTeamLogo {
+            position: absolute;
+            width: 50px; /* Adjust image width */
+            height: 50px; /* Adjust image height */
+            top: 0;
+            right: calc(100% + 10px); /* Position it just to the left of the away team name */
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            position: absolute;
+            top: 240px; /* Adjust the top position */
+            left: 0; /* Adjust the left position */
+            text-align: center;
+        }
+
+        caption {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent white background */
+            border: 2px solid black; /* Black border */
+            border-radius: 5px; /* Rounded corners */
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Shadow effect */
+        }
+
+
+        table {
+            position: absolute;
+            top: 210px; /* Adjust the top position */
+            left: 10px; /* 10px from left side + image width + 10px */
+            border-collapse: collapse;
+            width: 490px; /* Adjust the width of the table */
+            color: black; /* Text color */
+            border: 2px solid black; /* Add black border around the table */
+            border-radius: 10px; /* Add border radius */
+            overflow: hidden; /* Clip blurred background within border */
+            background-color: rgb(255, 255, 255); /* Set slightly transparent white background */
+            backdrop-filter: blur(5px); /* Apply blur effect */
+        }
+
+        th,
+        td {
+            width: 100px; /* Set width for other columns */
+            text-align: center; /* Center align text in cells */
+            padding: 10px; /* Add padding */
+            border-bottom: 1px solid black; /* Add black line between rows */
+        }
+
+        th:first-child,
+        td:first-child {
+            border-left: 1px solid black; /* Add black left border to first column */
+        }
+
+        th:last-child,
+        td:last-child {
+            border-right: 1px solid black; /* Add black right border to last column */
+        }
+
+        .homeTeamColumn {
+            text-align: right; /* Align home team cell to the right */
+            min-width: 100px;
+        }
+
+        .awayTeamColumn {
+            text-align: left; /* Align away team cell to the left */
+            min-width: 100px;
+        }
+
+        .resultColumn {
+            min-width: 0; /* Ensure minimum width of 50 pixels */
+        }
+
+        img {
+            position: absolute;
+            top: 210px; /* Adjust this value to position the image */
+        }
+
+        /* Additional Styles for Away Team Table */
+        #awayTable {
+            right: 0; /* Adjusted position for the away table */
+            left: auto; /* Reset left */
+        }
+
+        #standings {
+            position: absolute;
+            top: 600px;
+            left: 410px;
+        }
+
+        #standings th {
+            background-color: #f2f2f2; /* Background color */
+            color: #333; /* Text color */
+            font-weight: bold; /* Bold text */
+            padding: 10px; /* Padding around content */
+            text-align: center; /* Center text */
+        }
+
+        #PlTrophy {
+            width: 160px; /* Adjusted size */
+            height: 300px; /* Adjusted size */
+            background: url("https://static.thenounproject.com/png/451808-200.png") no-repeat center center;
+            background-size: cover;
+            position: absolute;
+            right: 130px;
+            top: 600px; /* Adjust vertical position */
+        }
+
+        #PlTrophyLeft {
+            width: 160px; /* Adjusted size */
+            height: 300px; /* Adjusted size */
+            background: url("https://static.thenounproject.com/png/451808-200.png") no-repeat center center;
+            background-size: cover;
+            position: absolute;
+            left: 130px; /* Adjust horizontal position */
+            top: 600px; /* Adjust vertical position */
+        }
+
+        .number {
+            display: inline-block; /* Make the span behave like a block element */
+            transform: translate(260%, 240%);
+            color: black; /* Text color */
+            font-size: 48px; /* Adjust font size */
+            font-weight: bold; /* Adjust font weight */
+        }
+
+        #News-container {
+            max-width: 350px;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            position: absolute;
+            border-radius: 10px;
+            right: -25px;
+            top: 950px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #News-containerLeft {
+            max-width: 330px;
+            background-color: rgba(0, 0, 0, 0.8);
+            position: absolute;
+            padding: 20px;
+            left: 20px;
+            border-radius: 10px;
+            top: 950px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .news-title {
+            font-size: 32px;
+            color: white;
+            text-shadow: 4px 4px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .article {
+            margin-bottom: 310px;
+            position: relative;
+        }
+
+        .article h3 {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            font-size: 20px;
+            color: white;
+        }
+
+        .article p {
+            color: white;
+        }
+
+        .article img {
+            size: auto;
+            max-width: 90%;
+            height: auto;
+            border-radius: 5px;
+            position: absolute; /* Add this line */
+            margin-top: -10px;
+        }
+
+        .links {
+            font-size: 16px;
+            color: white;
+            margin-top: 20px;
+        }
+
+    </style>
+</head>
+
+<body>
+<div id="logo"></div>
+<div id="header">Premier league analyzer</div>
+<div id="vs">VS</div>
+<div id="venue" th:if="${stadiumName != null && capacity != null && city != null}">
+    Venue: [[${stadiumName}]], capacity: [[${capacity}]]<br>City: [[${city}]]
+</div> <!-- Added venue text here -->
+<div class="homeTeam" th:if="${homeTeam != null}">
+    [[${homeTeam}]]
+    <img class="homeTeamLogo" th:src="${homeTeamLogo}" alt="Home Team Logo">
+</div>
+<div class="awayTeam" th:if="${awayTeam != null}">
+    [[${awayTeam}]]
+    <img class="awayTeamLogo" th:src="${awayTeamLogo}" alt="Away Team Logo">
+</div>
+
+<!-- Table for Premier League Standings -->
+<table id="standings">
+    <caption>Current Premier League Standings</caption>
+    <tr>
+        <th>Position</th>
+        <th>Team</th>
+        <th>Played</th>
+        <th>GS</th>
+        <th>GC</th>
+        <th>GD</th>
+        <th>Pts</th>
+    </tr>
+    <tr th:each="standing, index : ${standingsList}">
+        <td th:text="${index.index + 1}"></td>
+        <td th:text="${standing.getTeam().getName()}"></td>
+        <td th:text="${standing.getMatchesPlayed()}"></td>
+        <td th:text="${standing.getGoalsScored()}"></td>
+        <td th:text="${standing.getGoalsConceded()}"></td>
+        <td th:text="${standing.getGoalDifference()}"></td>
+        <td th:text="${standing.getPoints()}"></td>
+    </tr>
+</table>
+
+<!-- First Table for Home Team -->
+<table>
+    <caption>Last five [[${homeTeam}]] home matches:</caption>
+    <tbody>
+    <tr th:each="match : ${lastFiveHomeTeamHomeMatches}">
+        <td class="homeTeamColumn" th:text="${match.homeTeam.getName()}"></td>
+        <td class="resultColumn" th:text="${match.result}"></td>
+        <td class="awayTeamColumn" th:text="${match.awayTeam.getName()}"></td>
+        <td th:text="${match.date}"></td>
+        <td th:text="${match.season}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- Second Table for Away Team -->
+<table id="awayTable">
+    <caption>Last five [[${awayTeam}]] away matches:</caption>
+    <tbody>
+    <tr th:each="match : ${lastFiveAwayTeamAwayMatches}">
+        <td class="homeTeamColumn" th:text="${match.homeTeam.getName()}"></td>
+        <td class="resultColumn" th:text="${match.result}"></td>
+        <td class="awayTeamColumn" th:text="${match.awayTeam.getName()}"></td>
+        <td th:text="${match.date}"></td>
+        <td th:text="${match.season}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<div id="PlTrophyLeft">
+    <span class="number" th:if="${homeTitles != null}">[[${homeTitles}]]</span>
+</div>
+
+<div id="PlTrophy">
+    <span class="number" th:if="${awayTitles != null}">[[${awayTitles}]]</span>
+</div>
+
+<div id="News-containerLeft">
+    <div class="news-title" th:if="${homeTeam != null}">[[${homeTeam}]]'s Latest News:</div>
+
+    <div class="article-container">
+        <!-- Iterate over the list of articles for the home team -->
+        <th:block th:each="article : ${homeTeamNewsItems}">
+            <div th:class="article">
+                <h3 th:text="${article.headline}"></h3>
+                <p th:text="${article.introducingSentence}"></p>
+                <img th:src="@{${article.imageLink}}" alt="Article Image">
+            </div>
+        </th:block>
+    </div>
+
+    <div class="links">
+        <p>For the full articles click <a href="#" th:href="@{${homeFullArticlesLink}}">here</a></p>
+        <p>Club's official website: <a href="#" th:href="@{${homeOfficialWebsiteLink}}" th:text="${homeTeam}">[[${homeTeam}]]</a></p>
+    </div>
+</div>
+
+<div id="News-container">
+    <div class="news-title" th:if="${awayTeam != null}">[[${awayTeam}]]'s Latest News:</div>
+
+    <div class="article-container">
+        <!-- Iterate over the list of articles for the away team -->
+        <div class="article" th:each="article : ${awayTeamNewsItems}">
+            <h3 th:text="${article.headline}">Article Headline</h3>
+            <p th:text="${article.introducingSentence}">First sentence of the article</p>
+            <img th:src="@{${article.imageLink}}" alt="Article Image">
+        </div>
+    </div>
+
+    <div class="links">
+        <p>For the full articles click <a href="#" th:href="@{${awayFullArticlesLink}}">here</a></p>
+        <p>Club's official website: <a href="#" th:href="@{${awayOfficialWebsiteLink}}" th:text="${awayTeam}">[[${awayTeam}]]</a></p>
+    </div>
+</div>
+<img th:src="${stadiumPhoto}">
+</body>
+</html>
