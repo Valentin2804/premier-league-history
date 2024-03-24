@@ -16,7 +16,7 @@ public class CloudManagement {
 
     private final BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
             .endpoint("https://plprovider.blob.core.windows.net")
-            .sasToken("sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2024-06-01T16:16:07Z&st=2024-03-20T09:16:07Z&spr=https,http&sig=BtbivvL7XoWhpRYOtkxY1QQ7iYeOxpiKtBmzWdVqIO4%3D")
+            .sasToken("")
             .buildClient();
 
     public void upload(String name, byte[] image, String containerName){
