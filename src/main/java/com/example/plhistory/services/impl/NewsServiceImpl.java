@@ -46,8 +46,14 @@ public class NewsServiceImpl implements NewsService {
 
             firstSentence = firstSentence.replace(extractFromFirstSentence, "");
 
-            News news = new News(title, firstImage.attr("src"), firstSentence, publishMoment);
+            News news;
+            if(firstImage != null){
+                news = new News(title, firstImage.attr("src"), firstSentence, publishMoment);
+            }else{
+                news = new News(title, null, firstSentence, publishMoment);
+            }
             newsList.add(news);
+
         }
 
         return newsList;

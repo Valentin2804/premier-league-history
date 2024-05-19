@@ -1,5 +1,6 @@
 package com.example.plhistory.config;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -12,12 +13,14 @@ public class MailSenderConfig {
 
     @Bean
     public JavaMailSender getJavaMailSender(){
+        Dotenv dotenv = Dotenv.load();
+
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587);
 
-        mailSender.setUsername("HERE");
-        mailSender.setPassword("HERE");
+        mailSender.setUsername(dotenv.get("EMAIL_USERNAME"));
+        mailSender.setPassword(dotenv.get("EMAIL_PASSWORD"));
         Properties properties = mailSender.getJavaMailProperties();
 
         properties.put("mail.transport.protocol", "smtp");

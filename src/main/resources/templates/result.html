@@ -387,7 +387,9 @@
         <div class="article" th:each="article : ${awayTeamNewsItems}">
             <h3 th:text="${article.headline}">Article Headline</h3>
             <p th:text="${article.introducingSentence}">First sentence of the article</p>
-            <img th:src="@{${article.imageLink}}" alt="Article Image">
+            <div th:if="${article.imageLink != null}">
+                <img th:src="@{${article.imageLink}}" alt="Article Image">
+            </div>
         </div>
     </div>
 

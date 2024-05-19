@@ -1,6 +1,7 @@
 package com.example.plhistory.services.impl;
 
 import com.example.plhistory.services.EmailService;
+import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.AllArgsConstructor;
@@ -23,12 +24,13 @@ public class EmailServiceImpl implements EmailService {
     @Async
     public void send(String to, String email) {
         try {
+            Dotenv dotenv = Dotenv.load();
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
             helper.setText(email, true);
             helper.setTo(to);
             helper.setSubject("Confirm your email");
-            helper.setFrom("valeninmarinov05@gmail.com");
+            helper.setFrom(dotenv.get("EMAIL_USERNAME"));
             mailSender.send(mimeMessage);
         }catch (MessagingException e){
             LOGGER.error("failed to send email", e);

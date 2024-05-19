@@ -12,7 +12,8 @@ target/
 .settings
 .springBeans
 .sts4-cache
-application.env
+.env
+src/main/resources/application.properties
 node_modules
 
 ### IntelliJ IDEA ###

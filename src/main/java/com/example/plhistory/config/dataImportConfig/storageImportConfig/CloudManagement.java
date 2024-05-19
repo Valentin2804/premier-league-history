@@ -6,6 +6,7 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.specialized.BlockBlobClient;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.ByteArrayInputStream;
@@ -14,9 +15,11 @@ import java.util.Base64;
 
 public class CloudManagement {
 
+    private final Dotenv dotenv = Dotenv.load();
+
     private final BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
             .endpoint("https://plprovider.blob.core.windows.net")
-            .sasToken("HERE")
+            .sasToken(dotenv.get("SAS_TOKEN"))
             .buildClient();
 
     public void upload(String name, byte[] image, String containerName){
