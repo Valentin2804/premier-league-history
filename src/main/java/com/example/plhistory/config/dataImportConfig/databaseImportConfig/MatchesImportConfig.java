@@ -4,6 +4,8 @@ import com.example.plhistory.entities.Matches;
 import com.example.plhistory.entities.Teams;
 import com.example.plhistory.repositories.MatchesRepository;
 import com.example.plhistory.services.TeamsService;
+import com.example.plhistory.services.impl.MatchesServiceImpl;
+import com.opencsv.CSVReader;
 import jakarta.transaction.Transactional;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -17,16 +19,18 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
+import java.util.*;
 
 @Configuration
 //@Order(4)
 public class MatchesImportConfig {
 
     private final TeamsService service;
+    private final MatchesServiceImpl matchesService;
 
-    public MatchesImportConfig(TeamsService service) {
+    public MatchesImportConfig(TeamsService service, MatchesServiceImpl matchesService) {
         this.service = service;
+        this.matchesService = matchesService;
     }
 
     @Transactional
@@ -138,5 +142,71 @@ public class MatchesImportConfig {
                 e.printStackTrace();
             }
         };
+    }
+
+    @Bean
+    CommandLineRunner fillLastSeasonMatches(){
+        return args -> {
+            String matchesCsv = "src/main/resources/data/matches.csv";
+
+            try (CSVReader reader = new CSVReader(new FileReader(matchesCsv))) {
+                List<String[]> rows = reader.readAll();
+                Map<String, Matches> uniqueMatches = new HashMap<>();
+
+                for (int i = 1; i < rows.size(); i++) {
+                    String[] row = rows.get(i);
+                    String date = row[0];
+                    String venue = row[1];
+                    String gf = row[2];
+                    String ga = row[3];
+                    String opponent = row[4];
+                    String team = row[5];
+
+                    String homeTeam;
+                    String awayTeam;
+                    int homeTeamGoals;
+                    int awayTeamGoals;
+
+                    if ("Away".equalsIgnoreCase(venue)) {
+                        awayTeam = team;
+                        awayTeamGoals = Integer.parseInt(gf);
+                        homeTeam = opponent;
+                        homeTeamGoals = Integer.parseInt(ga);
+                    } else {
+                        homeTeam = team;
+                        homeTeamGoals = Integer.parseInt(gf);
+                        awayTeam = opponent;
+                        awayTeamGoals = Integer.parseInt(ga);
+                    }
+
+                    LocalDate dateOfMatch = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+                    String matchKey = generateMatchKey(dateOfMatch, homeTeam, awayTeam);
+
+                    Teams homeTeamObj = service.getTeamByName(homeTeam);
+                    Teams awayTeamObj = service.getTeamByName(awayTeam);
+
+                    if(!uniqueMatches.containsKey(matchKey)) {
+                        Matches match = new Matches();
+                        match.setAwayTeam(awayTeamObj);
+                        match.setHomeTeam(homeTeamObj);
+                        match.setHomeTeamGoals(homeTeamGoals);
+                        match.setAwayTeamGoals(awayTeamGoals);
+                        match.setDate(dateOfMatch);
+
+                        uniqueMatches.put(matchKey, match);
+                        matchesService.insertMatch(match);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        };
+    }
+
+    private String generateMatchKey(LocalDate date, String homeTeam, String awayTeam) {
+        List<String> teams = Arrays.asList(homeTeam, awayTeam);
+        Collections.sort(teams);
+        return date.toString() + "-" + teams.get(0) + "-" + teams.get(1);
     }
 }

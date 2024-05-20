@@ -281,6 +281,22 @@
             margin-top: 20px;
         }
 
+        .logout-button {
+            padding: 8px 16px; /* Adjust padding as needed */
+            background-color: rgb(61, 25, 91);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .logout-button:hover {
+            background-color: rgb(51, 15, 81); /* Darken the color on hover */
+        }
+
     </style>
 </head>
 
@@ -399,5 +415,8 @@
     </div>
 </div>
 <img th:src="${stadiumPhoto}">
+<form id="logout-form" th:action="@{/logout}" method="post">
+    <button type="submit" class="logout-button">Logout</button>
+</form>
 </body>
 </html>

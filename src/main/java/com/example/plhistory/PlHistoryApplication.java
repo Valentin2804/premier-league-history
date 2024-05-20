@@ -8,5 +8,6 @@ public class PlHistoryApplication {
     public static void main(String[] args){
         SpringApplication.run(PlHistoryApplication.class, args);
 
+
     }
 }

@@ -26,10 +26,10 @@ public class StandingsServiceImpl implements StandingsService {
     @Override
     public List<Standings> getCurrentStanding() {
 
-        Sort.Order points = new Sort.Order(Sort.Direction.ASC, "points");
-        Sort.Order goalDifference = new Sort.Order(Sort.Direction.ASC, "goalDifference");
-        Sort.Order goalsScored = new Sort.Order(Sort.Direction.ASC, "goalsScored");
-        Sort.Order alphabet = new Sort.Order(Sort.Direction.ASC, "id");
+        Sort.Order points = new Sort.Order(Sort.Direction.DESC, "points");
+        Sort.Order goalDifference = new Sort.Order(Sort.Direction.DESC, "goalDifference");
+        Sort.Order goalsScored = new Sort.Order(Sort.Direction.DESC, "goalsScored");
+        Sort.Order alphabet = new Sort.Order(Sort.Direction.DESC, "id");
 
         Sort sort = Sort.by(points, goalDifference, goalsScored, alphabet);
 

@@ -50,7 +50,7 @@ public class MatchesServiceImpl implements MatchesService {
         Standings awayTeamStanding = service.getStandingByTeam(match.getAwayTeam());
 
         homeTeamStanding.setMatchesPlayed(homeTeamStanding.getMatchesPlayed() + 1);
-        awayTeamStanding.setMatchesPlayed(homeTeamStanding.getMatchesPlayed() + 1);
+        awayTeamStanding.setMatchesPlayed(awayTeamStanding.getMatchesPlayed() + 1);
 
         homeTeamStanding.setGoalsScored(homeTeamStanding.getGoalsScored() + match.getHomeTeamGoals());
         awayTeamStanding.setGoalsScored(awayTeamStanding.getGoalsScored() + match.getAwayTeamGoals());
@@ -64,10 +64,10 @@ public class MatchesServiceImpl implements MatchesService {
         if(match.getHomeTeamGoals() > match.getAwayTeamGoals()){
             homeTeamStanding.setPoints(homeTeamStanding.getPoints() + 3);
         } else if (match.getAwayTeamGoals() > match.getHomeTeamGoals()) {
-            homeTeamStanding.setPoints(homeTeamStanding.getPoints() + 3);
+            awayTeamStanding.setPoints(awayTeamStanding.getPoints() + 3);
         }else {
             homeTeamStanding.setPoints(homeTeamStanding.getPoints() + 1);
-            homeTeamStanding.setPoints(homeTeamStanding.getPoints() + 1);
+            awayTeamStanding.setPoints(awayTeamStanding.getPoints() + 1);
         }
 
         standingsRepository.save(homeTeamStanding);

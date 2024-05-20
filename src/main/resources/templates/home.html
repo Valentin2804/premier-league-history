@@ -159,6 +159,25 @@
       filter: invert(100%); /* Apply inversion to make the icon white */
     }
 
+    /* Add this CSS at the end of your existing styles */
+
+    .logout-button {
+      padding: 8px 16px; /* Adjust padding as needed */
+      background-color: rgb(61, 25, 91);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+
+    .logout-button:hover {
+      background-color: rgb(51, 15, 81); /* Darken the color on hover */
+    }
+
+
   </style>
 </head>
 
@@ -184,6 +203,9 @@
     </button>
   </form>
 </div>
+<form id="logout-form" th:action="@{/logout}" method="post">
+  <button type="submit" class="logout-button">Logout</button>
+</form>
 
 <script th:inline="javascript">
   document.addEventListener("DOMContentLoaded", function () {
