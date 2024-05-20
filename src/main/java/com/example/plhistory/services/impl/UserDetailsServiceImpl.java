@@ -2,9 +2,12 @@ package com.example.plhistory.services.impl;
 
 import com.example.plhistory.config.PasswordEncoderConfig;
 import com.example.plhistory.entities.User.ConformationToken;
+import com.example.plhistory.entities.User.PasswordResetToken;
 import com.example.plhistory.entities.User.User;
+import com.example.plhistory.repositories.PasswordResetTokenRepository;
 import com.example.plhistory.repositories.UsersRepository;
 import jakarta.transaction.Transactional;
+import org.mapstruct.control.MappingControl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -20,13 +23,17 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final ConformationTokenServiceImpl service;
     private final EmailServiceImpl emailService;
     private final PasswordEncoderConfig encoder;
+    private final PasswordResetTokenServiceImpl passwordResetService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
 
-    public UserDetailsServiceImpl(UsersRepository repository, ConformationTokenServiceImpl service, EmailServiceImpl emailService, PasswordEncoderConfig encoder) {
+    public UserDetailsServiceImpl(UsersRepository repository, ConformationTokenServiceImpl service, EmailServiceImpl emailService, PasswordEncoderConfig encoder, PasswordResetTokenServiceImpl passwordResetService, PasswordResetTokenRepository passwordResetTokenRepository) {
         this.repository = repository;
         this.service = service;
         this.emailService = emailService;
         this.encoder = encoder;
+        this.passwordResetService = passwordResetService;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
     }
 
     @Override
@@ -82,13 +89,45 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     public String passwordResetEmail(String email){
 
-        String token = UUID.randomUUID().toString();
+        String tokenString = UUID.randomUUID().toString();
 
-        String link = "http://localhost:8080/login/password-reset?token=" + token;
+        String link = "http://localhost:8080/login/password-reset?token=" + tokenString;
 
         emailService.send(email, buildPasswordResetEmail(link));
 
+        PasswordResetToken token = new PasswordResetToken();
+        token.setToken(tokenString);
+        token.setCreatedAt(LocalDateTime.now());
+        token.setExpiresAt(LocalDateTime.now().plusMinutes(15));
+        if(repository.findByEmail(email).isPresent()){
+            token.setUser(repository.findByEmail(email).get());
+        }
+        token.setUpdatedAt(null);
+
+        passwordResetService.savePasswordResetToken(token);
+
         return "login";
+    }
+
+    public String resetPassword(String token, String password){
+
+        PasswordResetToken resetToken = passwordResetService.getPasswordResetToken(token);
+
+        if(resetToken.getExpiresAt().isAfter(LocalDateTime.now())){
+            User userToResetPas = resetToken.getUser();
+
+            userToResetPas.setPassword(encoder.bCryptPasswordEncoder().encode(password));
+            repository.save(userToResetPas);
+
+            resetToken.setUpdatedAt(LocalDateTime.now());
+            passwordResetTokenRepository.save(resetToken);
+
+            resetToken.setUpdatedAt(LocalDateTime.now());
+
+            return "login";
+        }else {
+            return "new-password-token";
+        }
     }
 
     @Transactional

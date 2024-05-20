@@ -17,12 +17,24 @@ public class PasswordResetController {
     @GetMapping("/login/passreset")
     public String loginRedirect(Model model){
 
-        return "passwordReset";
+        return "emailForm";
     }
 
     @PostMapping("/login/passreset")
     public String handlePassReset(@RequestParam("email") String email) {
 
         return service.passwordResetEmail(email);
+    }
+
+    @GetMapping("/login/password-reset")
+    public String passwordReset(@RequestParam("token") String token, Model model){
+        model.addAttribute("token", token);
+        return "passwordReset";
+    }
+
+    @PostMapping("/login/password-reset")
+    public String handlePasswordReset(@RequestParam("token") String token,
+                                      @RequestParam("password") String password) {
+        return service.resetPassword(token, password);
     }
 }
